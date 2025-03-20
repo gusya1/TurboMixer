@@ -21,17 +21,18 @@ public:
   virtual ProcessStatus process() = 0;
 };
 
-
-class CMixCommandProcess: public ICommandProcess
+class CMixCommandProcess : public ICommandProcess
 {
 public:
   CMixCommandProcess(int power, int duration)
-    : m_power{power}, m_duration{duration}
-  {}
+      : m_power{power}, m_duration{duration}
+  {
+  }
 
   ~CMixCommandProcess() override = default;
-  
-  int start() override {
+
+  int start() override
+  {
     m_timer.start(m_duration);
     return setMixPower(m_power);
   }
@@ -51,17 +52,18 @@ private:
   int m_duration;
 };
 
-
-class CGapCommandProcess: public ICommandProcess
+class CGapCommandProcess : public ICommandProcess
 {
 public:
   CGapCommandProcess(int duration)
-    : m_duration{duration}
-  {}
+      : m_duration{duration}
+  {
+  }
 
   ~CGapCommandProcess() override = default;
-  
-  int start() override {
+
+  int start() override
+  {
     m_timer.start(m_duration);
     return SUCCESS;
   }
@@ -79,14 +81,15 @@ private:
   int m_duration;
 };
 
-class CAlarmCommandProcess: public ICommandProcess
+class CAlarmCommandProcess : public ICommandProcess
 {
 public:
   CAlarmCommandProcess() {}
 
   ~CAlarmCommandProcess() override = default;
-  
-  int start() override {
+
+  int start() override
+  {
     return SUCCESS;
   }
 

@@ -4,7 +4,6 @@
 
 #include <Arduino.h>
 
-
 void alarm()
 {
   Serial.println("ALARM");

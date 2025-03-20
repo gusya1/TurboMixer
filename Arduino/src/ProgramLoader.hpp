@@ -5,11 +5,10 @@
 #include <EEPROM.h>
 #include <Arduino.h>
 
-
 class CProgramWriter
 {
 public:
-  bool write(char* data, int len)
+  bool write(char *data, int len)
   {
     if (EEPROM.length() < m_address + len)
       return false;
@@ -20,7 +19,7 @@ public:
   }
 
 private:
-  int m_address = 0;
+  uint16_t m_address = 0;
 };
 
 class CProgramLoader
@@ -28,20 +27,23 @@ class CProgramLoader
 public:
   CProgramLoader() {}
 
-  void setup() {
+  void setup()
+  {
     Serial.begin(9600);
     Serial.setTimeout(100);
   }
-  
-  void setUpReadyToWrite() {
+
+  void setUpReadyToWrite()
+  {
     Serial.println(LOAD_STATUS_READY);
   }
 
-  void tryWrite() {
+  void tryWrite()
+  {
     if (Serial.peek() != STX)
       return;
     Serial.println(LOAD_STATUS_LOADING);
-    
+
     auto loadStatus = loadProgram();
     if (loadStatus)
       Serial.println(LOAD_STATUS_SUCCESS);
@@ -50,7 +52,8 @@ public:
   }
 
 private:
-  bool loadProgram() {
+  bool loadProgram()
+  {
     auto writer = CProgramWriter();
 
     auto endReceived = false;

@@ -4,7 +4,6 @@
 
 #include <Arduino.h>
 
-
 int setMixPower(int power)
 {
   if (power > 6 || power < 1)

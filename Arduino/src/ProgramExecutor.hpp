@@ -6,18 +6,17 @@
 #include <EEPROM.h>
 #include <Arduino.h>
 
-
-struct __attribute__((packed)) ProgramHeader
-{
-  char prefix = STX;
-  uint8_t commandCount = 0;
-};
-
 enum class CommandType : uint8_t
 {
   Mix = 0,
   Gap = 1,
   Alarm = 2
+};
+
+struct __attribute__((packed)) ProgramHeader
+{
+  char prefix = STX;
+  uint8_t commandCount = 0;
 };
 
 struct __attribute__((packed)) MixCommand
@@ -69,7 +68,7 @@ private:
   {
     if (m_nextCommandNumber == m_commandCount)
       return PROGRAM_FINISHED;
-    
+
     m_nextCommandNumber++;
     return executeCommand(m_nextCommandAddress);
   }
@@ -79,14 +78,14 @@ private:
     const auto commandType = CommandType(EEPROM.read(commandAddress));
     switch (commandType)
     {
-      case CommandType::Mix: 
-        return executeMixCommand(commandAddress);
-      case CommandType::Gap:
-        return executeGapCommand(commandAddress);
-      case CommandType::Alarm: 
-        return executeAlarmCommand(commandAddress);
-      default:
-        return PROGRAM_READ_ERROR;
+    case CommandType::Mix:
+      return executeMixCommand(commandAddress);
+    case CommandType::Gap:
+      return executeGapCommand(commandAddress);
+    case CommandType::Alarm:
+      return executeAlarmCommand(commandAddress);
+    default:
+      return PROGRAM_READ_ERROR;
     }
   }
 
@@ -126,8 +125,7 @@ private:
     return startNewCommandProcess(new CAlarmCommandProcess());
   }
 
-
-  int startNewCommandProcess(ICommandProcess* newCommandProcess)
+  int startNewCommandProcess(ICommandProcess *newCommandProcess)
   {
     if (m_pCommandProcess)
       delete m_pCommandProcess;
@@ -138,5 +136,5 @@ private:
   int m_nextCommandNumber = 0;
   int m_nextCommandAddress = 0;
   int m_commandCount = 0;
-  ICommandProcess* m_pCommandProcess = nullptr;
+  ICommandProcess *m_pCommandProcess = nullptr;
 };

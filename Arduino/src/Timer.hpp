@@ -2,21 +2,16 @@
 
 #include <Arduino.h>
 
-
 enum class TimerStatus
 {
   Running = 0,
   Finished,
 };
 
-
 class CSecondTimer
 {
 public:
-  CSecondTimer()
-  {
-
-  }
+  CSecondTimer() {}
 
   void start(int seconds)
   {

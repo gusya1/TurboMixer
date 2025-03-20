@@ -2,10 +2,7 @@
 #include "ProgramExecutor.hpp"
 #include "Timer.hpp"
 
-
-
-
-enum class Mode 
+enum class Mode
 {
   Load,
   Execute,
@@ -16,18 +13,13 @@ auto loadTimer = CSecondTimer();
 auto programLoader = CProgramLoader();
 auto programExecutor = CProgramExecutor();
 auto mode = Mode::Load;
-int  executorResult = SUCCESS;
+int executorResult = SUCCESS;
 
-void setup() {
+void setup()
+{
   programLoader.setup();
   programLoader.setUpReadyToWrite();
   loadTimer.start(3);
-}
-
-void loop() {
-  processChangeMode();
-  processLoad();
-  processExecute();
 }
 
 void processExecute()
@@ -58,6 +50,11 @@ void processChangeMode()
     Serial.println("ExecuteFinished");
     mode = Mode::Idle;
   }
-
 }
 
+void loop()
+{
+  processChangeMode();
+  processLoad();
+  processExecute();
+}
