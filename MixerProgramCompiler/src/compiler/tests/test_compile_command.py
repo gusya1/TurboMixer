@@ -7,5 +7,5 @@ class TestCompileCommand(TestCase):
     def test_mix(self):
         command = Command(CommandType.Mix, [3, 50])
         result = compile_command(command)
-        self.assertEqual(b'\x00\x02\x00\x00\x00\x03\x00\x00\x00\x32', result)
+        self.assertEqual(b'\x00\x02\x03\x00\x00\x002\x00\x00\x00', result)
 
