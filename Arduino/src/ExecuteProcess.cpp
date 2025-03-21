@@ -72,7 +72,9 @@ int CExecuteProcess::process()
 
 int CExecuteProcess::stop()
 {
-  // TODO make implementation
+  releaseCurrentCommandProcess();
+  m_nextCommandNumber = 0;
+  m_nextCommandAddress = sizeof(ProgramHeader);
   return SUCCESS;
 }
 
@@ -139,8 +141,14 @@ CExecuteProcess::ExecuteResult CExecuteProcess::executeAlarmCommand(int commandA
 
 int CExecuteProcess::startNewCommandProcess(ICommandProcess *newCommandProcess)
 {
-  if (m_pCommandProcess)
-    delete m_pCommandProcess;
+  releaseCurrentCommandProcess();
   m_pCommandProcess = newCommandProcess;
   return m_pCommandProcess->start();
+}
+
+void CExecuteProcess::releaseCurrentCommandProcess()
+{
+  if (m_pCommandProcess)
+    delete m_pCommandProcess;
+  m_pCommandProcess = nullptr;
 }
