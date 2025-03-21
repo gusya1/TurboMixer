@@ -15,6 +15,7 @@ public:
 private:
   int executeNextCommand();
   int startNewCommandProcess(ICommandProcess *newCommandProcess);
+  void releaseCurrentCommandProcess();
   ExecuteResult executeCommand(int commandAddress);
   ExecuteResult executeMixCommand(int commandAddress);
   ExecuteResult executeGapCommand(int commandAddress);
