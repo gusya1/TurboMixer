@@ -12,6 +12,9 @@
 
 // коды возврата
 #define SUCCESS                 0
-#define PROGRAM_FINISHED        1
+#define PROGRAM_FINISHED        1 // TODO remove
+#define PROCESS_FINISHED        1
+#define RUNNING                 2
 #define PROGRAM_READ_ERROR      -1
 #define INCORRECT_POWER_ERROR   -2
+#define LOADING_NOT_FINISHED    -3

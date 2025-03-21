@@ -1,5 +1,7 @@
-#include "ProgramLoader.hpp"
+#include "ProgramLoader.h"
 #include "ProgramExecutor.hpp"
+#include "IProcess.h"
+#include "IdleProcess.hpp"
 #include "Timer.hpp"
 
 enum class Mode
@@ -10,51 +12,74 @@ enum class Mode
 };
 
 auto loadTimer = CSecondTimer();
-auto programLoader = CProgramLoader();
-auto programExecutor = CProgramExecutor();
-auto mode = Mode::Load;
+auto g_idleProcess = CIdleProcess();
+auto g_programLoader = CProgramLoader();
+auto g_executeProcess = CExecuteProcess();
 int executorResult = SUCCESS;
+
+// при долгом нажатии на кнопку устройство переключается на режим приёма программы
+bool g_buttonLongPressed = false;
+// при клике на кнопку запускается 
+bool g_buttonClicked = false;
+
 
 void setup()
 {
-  programLoader.setup();
-  programLoader.setUpReadyToWrite();
+  g_programLoader.setup();
   loadTimer.start(3);
 }
 
-void processExecute()
-{
-  if (mode != Mode::Execute)
-    return;
-  executorResult = programExecutor.process();
-}
 
-void processLoad()
-{
-  if (mode != Mode::Load)
-    return;
-  programLoader.tryWrite();
-}
 
-void processChangeMode()
+class CModeSwitcher
 {
-  const auto timerStaus = loadTimer.process();
-  if (timerStaus == TimerStatus::Finished && mode == Mode::Load)
+public:
+  void process()
   {
-    Serial.println("ExecuteStarted");
-    mode = Mode::Execute;
-    programExecutor.start();
+    if (m_currentMode != Mode::Load && g_buttonLongPressed)
+      changeMode(g_programLoader, Mode::Load);
+    if (m_currentMode != Mode::Execute && g_buttonClicked)
+      changeMode(g_executeProcess, Mode::Execute);
+
+    auto result = m_currentProcess.process();
+    if (result == PROCESS_FINISHED)
+      changeMode(g_idleProcess, Mode::Idle);
+    else if (result != SUCCESS)
+      returnCodeHandler(result);
   }
-  if (executorResult == PROGRAM_FINISHED && mode == Mode::Execute)
+
+private:
+  void changeMode(IProcess& newProcess, Mode mode)
   {
-    Serial.println("ExecuteFinished");
-    mode = Mode::Idle;
+    const auto stopResult = m_currentProcess.stop();
+    if (stopResult != SUCCESS)
+    {
+      returnCodeHandler(stopResult);
+      return;
+    }
+
+    m_currentMode = mode;
+    m_currentProcess = newProcess;
+    const auto stratResult = m_currentProcess.start();
+    if (stratResult != SUCCESS)
+    {
+      returnCodeHandler(stratResult);
+      return;
+    }
   }
-}
+
+  void returnCodeHandler(int returnCode)
+  {
+
+  }
+
+  IProcess& m_currentProcess = g_idleProcess;
+  Mode m_currentMode = Mode::Idle;
+};
+
+auto g_modeSwitcher = CModeSwitcher();
 
 void loop()
 {
-  processChangeMode();
-  processLoad();
-  processExecute();
+  g_modeSwitcher.process();
 }

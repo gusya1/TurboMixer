@@ -2,6 +2,7 @@
 
 #include "Defines.hpp"
 #include "CommandProcess.hpp"
+#include "IProcess.h"
 
 #include <EEPROM.h>
 #include <Arduino.h>
@@ -40,10 +41,10 @@ struct __attribute__((packed)) AlarmCommand
   uint8_t argsCount = 0;
 };
 
-class CProgramExecutor
+class CExecuteProcess: public IProcess
 {
 public:
-  int start()
+  int start() override
   {
     auto header = ProgramHeader();
     EEPROM.get(0, header);
@@ -53,13 +54,19 @@ public:
     return executeNextCommand();
   }
 
-  int process()
+  int process() override
   {
     if (!m_pCommandProcess)
       return SUCCESS;
     const auto status = m_pCommandProcess->process();
     if (status == ProcessStatus::Finished)
       return executeNextCommand();
+    return SUCCESS;
+  }
+
+  int stop() override
+  {
+    //TODO make implementation
     return SUCCESS;
   }
 
