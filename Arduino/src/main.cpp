@@ -1,5 +1,6 @@
 #include "ProgramLoader.h"
 #include "ExecuteProcess.h"
+#include "ButtonWatcherProcess.h"
 #include "IProcess.h"
 #include "IdleProcess.hpp"
 #include "Timer.hpp"
@@ -11,34 +12,24 @@ enum class Mode
   Idle,
 };
 
-auto loadTimer = CSecondTimer();
 auto g_idleProcess = CIdleProcess();
 auto g_programLoader = CProgramLoader();
 auto g_executeProcess = CExecuteProcess();
-int executorResult = SUCCESS;
+auto g_buttonWacherProcess = CButtonWatcherProcess();
 
 // при долгом нажатии на кнопку устройство переключается на режим приёма программы
 bool g_buttonLongPressed = false;
 // при клике на кнопку запускается 
 bool g_buttonClicked = false;
 
-
-void setup()
-{
-  g_programLoader.setup();
-  loadTimer.start(3);
-}
-
-
-
 class CModeSwitcher
 {
 public:
   void process()
   {
-    if (m_currentMode != Mode::Load && g_buttonLongPressed)
+    if (m_currentMode != Mode::Load && g_buttonWacherProcess.longPressed())
       changeMode(g_programLoader, Mode::Load);
-    if (m_currentMode != Mode::Execute && g_buttonClicked)
+    if (m_currentMode != Mode::Execute && g_buttonWacherProcess.clicked())
       changeMode(g_executeProcess, Mode::Execute);
 
     auto result = m_currentProcess.process();
@@ -79,7 +70,16 @@ private:
 
 auto g_modeSwitcher = CModeSwitcher();
 
+
+
+void setup()
+{
+  g_buttonWacherProcess.setup();
+  g_programLoader.setup();
+}
+
 void loop()
 {
+  g_buttonWacherProcess.process();
   g_modeSwitcher.process();
 }

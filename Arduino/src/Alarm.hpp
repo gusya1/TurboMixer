@@ -4,7 +4,7 @@
 
 #include <Arduino.h>
 
-void alarm()
+inline void alarm()
 {
   Serial.println("ALARM");
 }

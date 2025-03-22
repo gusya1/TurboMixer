@@ -4,7 +4,7 @@
 
 #include <Arduino.h>
 
-int setMixPower(int power)
+inline int setMixPower(int power)
 {
   if (power > 6 || power < 1)
     return INCORRECT_POWER_ERROR;
@@ -13,7 +13,7 @@ int setMixPower(int power)
   return SUCCESS;
 }
 
-int stopMixer()
+inline int stopMixer()
 {
   Serial.println("Mix stopped");
   return SUCCESS;
