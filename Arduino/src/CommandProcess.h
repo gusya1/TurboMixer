@@ -14,6 +14,8 @@ public:
 
   // ICommandProcess
   int start() override;
+  void pause() override;
+  void resume() override;
   ProcessStatus process() override;
 
 private:
@@ -30,6 +32,8 @@ public:
 
   // ICommandProcess
   int start() override;
+  void pause() override;
+  void resume() override;
   ProcessStatus process() override;
 
 private:
@@ -44,6 +48,8 @@ public:
   ~CAlarmCommandProcess() override = default;
 
   int start() override;
+  void pause() override;
+  void resume() override;
   ProcessStatus process() override;
 
 private:

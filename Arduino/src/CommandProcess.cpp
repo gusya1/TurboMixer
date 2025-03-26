@@ -19,6 +19,18 @@ int CMixCommandProcess::start()
   return setMixPower(m_power);
 }
 
+void CMixCommandProcess::pause()
+{
+  m_timer.pause();
+  stopMixer();
+}
+
+void CMixCommandProcess::resume()
+{
+  m_timer.resume();
+  setMixPower(m_power);
+}
+
 ProcessStatus CMixCommandProcess::process()
 {
   const auto timerStaus = m_timer.process();
@@ -41,6 +53,16 @@ int CGapCommandProcess::start()
   return SUCCESS;
 }
 
+void CGapCommandProcess::pause()
+{
+  m_timer.pause();
+}
+
+void CGapCommandProcess::resume()
+{
+  m_timer.resume();
+}
+
 ProcessStatus CGapCommandProcess::process()
 {
   const auto timerStaus = m_timer.process();
@@ -54,6 +76,14 @@ ProcessStatus CGapCommandProcess::process()
 int CAlarmCommandProcess::start()
 {
   return SUCCESS;
+}
+
+void CAlarmCommandProcess::pause()
+{
+}
+
+void CAlarmCommandProcess::resume()
+{
 }
 
 ProcessStatus CAlarmCommandProcess::process()
