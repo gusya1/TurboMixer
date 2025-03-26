@@ -2,7 +2,7 @@
 
 #include "IProcess.h"
 #include "Defines.hpp"
-#include "Timer.hpp"
+#include "Timer.h"
 
 #include <Arduino.h>
 

@@ -3,7 +3,7 @@
 #include "ButtonWatcherProcess.h"
 #include "IProcess.h"
 #include "IdleProcess.hpp"
-#include "Timer.hpp"
+#include "Timer.h"
 
 enum class Mode
 {

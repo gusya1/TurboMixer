@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Defines.hpp"
-#include "Timer.hpp"
+#include "Timer.h"
 #include "Mixer.hpp"
 #include "Alarm.hpp"
 
