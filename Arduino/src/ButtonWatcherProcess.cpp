@@ -43,28 +43,27 @@ int CButtonWatcherProcess::stop()
     return SUCCESS;
 }
 
-
-bool CButtonWatcherProcess::clicked()
+bool CButtonWatcherProcess::clicked() const
 {
     return m_clicked;
 }
 
-bool CButtonWatcherProcess::longPressed()
+bool CButtonWatcherProcess::longPressed() const
 {
     return m_longPressed;
 }
 
-ButtonState CButtonWatcherProcess::state()
+ButtonState CButtonWatcherProcess::state() const
 {
-  return m_lastState;
+    return m_lastState;
 }
 
 void CButtonWatcherProcess::setup()
 {
-    pinMode(PIN_BUTTON, INPUT);
+    pinMode(PIN_BUTTON, INPUT_PULLUP);
 }
 
 ButtonState CButtonWatcherProcess::readState()
 {
-    return ButtonState(digitalRead(PIN_BUTTON));
+    return digitalRead(PIN_BUTTON) ? ButtonState::Released : ButtonState::Pressed;
 }

@@ -5,7 +5,6 @@
 #include "ICommandProcess.h"
 #include "IButtonWatcher.h"
 
-
 #include <EEPROM.h>
 #include <Arduino.h>
 
@@ -52,8 +51,8 @@ struct CExecuteProcess::ExecuteResult
   uint32_t commandSize;
 };
 
-CExecuteProcess::CExecuteProcess(const IButtonWatcher& buttonWatcher)
-: m_buttonWatcher{buttonWatcher}
+CExecuteProcess::CExecuteProcess(const IButtonWatcher &buttonWatcher)
+    : m_buttonWatcher{buttonWatcher}
 {
 }
 
@@ -64,6 +63,10 @@ int CExecuteProcess::start()
   m_commandCount = header.commandCount;
   m_nextCommandNumber = 0;
   m_nextCommandAddress = sizeof(header);
+
+  if (m_buttonWatcher.clicked())
+    m_paused = true;
+
   return executeNextCommand();
 }
 
@@ -71,6 +74,16 @@ int CExecuteProcess::process()
 {
   if (!m_pCommandProcess)
     return SUCCESS;
+
+  if (m_buttonWatcher.clicked())
+  {
+    m_paused = !m_paused;
+    if (m_paused)
+      m_pCommandProcess->pause();
+    else
+      m_pCommandProcess->resume();
+  }
+
   const auto status = m_pCommandProcess->process();
   if (status == ProcessStatus::Finished)
     return executeNextCommand();

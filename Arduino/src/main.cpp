@@ -17,22 +17,17 @@ auto g_programLoader = CProgramLoader();
 auto g_buttonWacherProcess = CButtonWatcherProcess();
 auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess);
 
-// при долгом нажатии на кнопку устройство переключается на режим приёма программы
-bool g_buttonLongPressed = false;
-// при клике на кнопку запускается 
-bool g_buttonClicked = false;
-
 class CModeSwitcher
 {
 public:
   void process()
   {
-    if (m_currentMode != Mode::Load && g_buttonWacherProcess.longPressed())
+    if (m_currentMode == Mode::Idle && g_buttonWacherProcess.longPressed())
       changeMode(g_programLoader, Mode::Load);
-    if (m_currentMode != Mode::Execute && g_buttonWacherProcess.clicked())
+    if (m_currentMode == Mode::Idle && g_buttonWacherProcess.clicked())
       changeMode(g_executeProcess, Mode::Execute);
 
-    auto result = m_currentProcess.process();
+    auto result = m_pCurrentProcess->process();
     if (result == PROCESS_FINISHED)
       changeMode(g_idleProcess, Mode::Idle);
     else if (result != SUCCESS)
@@ -42,7 +37,7 @@ public:
 private:
   void changeMode(IProcess& newProcess, Mode mode)
   {
-    const auto stopResult = m_currentProcess.stop();
+    const auto stopResult = m_pCurrentProcess->stop();
     if (stopResult != SUCCESS)
     {
       returnCodeHandler(stopResult);
@@ -50,8 +45,8 @@ private:
     }
 
     m_currentMode = mode;
-    m_currentProcess = newProcess;
-    const auto stratResult = m_currentProcess.start();
+    m_pCurrentProcess = &newProcess;
+    const auto stratResult = m_pCurrentProcess->start();
     if (stratResult != SUCCESS)
     {
       returnCodeHandler(stratResult);
@@ -61,10 +56,10 @@ private:
 
   void returnCodeHandler(int returnCode)
   {
-
+    changeMode(g_idleProcess, Mode::Idle);
   }
 
-  IProcess& m_currentProcess = g_idleProcess;
+  IProcess* m_pCurrentProcess = &g_idleProcess;
   Mode m_currentMode = Mode::Idle;
 };
 

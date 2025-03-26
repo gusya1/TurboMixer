@@ -67,7 +67,7 @@ void CProgramLoader::setup()
 int CProgramLoader::process()
 {
   if (Serial.peek() != STX)
-    return RUNNING;
+    return SUCCESS;
   setLoadStatus(LoadStatus::Loading);
   // TODO make partial loading
   auto ok = loadProgram();

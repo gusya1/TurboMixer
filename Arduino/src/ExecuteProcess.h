@@ -27,6 +27,8 @@ private:
   ExecuteResult executeAlarmCommand(int commandAddress);
 
   const IButtonWatcher& m_buttonWatcher;
+  bool m_paused = false;
+
   int m_nextCommandNumber = 0;
   int m_nextCommandAddress = 0;
   int m_commandCount = 0;

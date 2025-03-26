@@ -52,7 +52,7 @@ class SerialLoader:
             message = self.socket.readline().decode().rstrip()
             status = get_status(message)
             if status is None:
-                raise UnknownStatusError()
+                raise UnknownStatusError(message)
             return status
         except serial.SerialException as e:
             raise SerialLoaderError("Ошибка чтения: {}".format(str(e)))

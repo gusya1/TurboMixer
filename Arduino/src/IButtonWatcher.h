@@ -9,7 +9,7 @@ class IButtonWatcher
 {
 public:
     virtual void setup() = 0;
-    virtual bool clicked() = 0;
-    virtual bool longPressed() = 0;
-    virtual ButtonState state() = 0;
+    virtual bool clicked() const = 0;
+    virtual bool longPressed() const = 0;
+    virtual ButtonState state() const = 0;
 };

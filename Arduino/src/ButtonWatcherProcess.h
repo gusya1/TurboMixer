@@ -10,7 +10,7 @@ class CButtonWatcherProcess : public IProcess, public IButtonWatcher
 public:
     CButtonWatcherProcess() = default;
     ~CButtonWatcherProcess() override = default;
-    
+
     // IProcess
     int start() override;
     int process() override;
@@ -18,9 +18,9 @@ public:
 
     // IButtonWatcher
     void setup() override;
-    bool clicked() override;
-    bool longPressed() override;
-    ButtonState state() override;
+    bool clicked() const override;
+    bool longPressed() const override;
+    ButtonState state() const override;
 
 private:
     ButtonState readState();
