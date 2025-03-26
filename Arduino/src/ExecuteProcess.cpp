@@ -1,8 +1,10 @@
 #include "ExecuteProcess.h"
 
 #include "Defines.hpp"
-#include "CommandProcess.hpp"
-#include "IProcess.h"
+#include "CommandProcess.h"
+#include "ICommandProcess.h"
+#include "IButtonWatcher.h"
+
 
 #include <EEPROM.h>
 #include <Arduino.h>
@@ -49,6 +51,11 @@ struct CExecuteProcess::ExecuteResult
   int returnCode;
   uint32_t commandSize;
 };
+
+CExecuteProcess::CExecuteProcess(const IButtonWatcher& buttonWatcher)
+: m_buttonWatcher{buttonWatcher}
+{
+}
 
 int CExecuteProcess::start()
 {

@@ -8,7 +8,9 @@
 class CButtonWatcherProcess : public IProcess, public IButtonWatcher
 {
 public:
+    CButtonWatcherProcess() = default;
     ~CButtonWatcherProcess() override = default;
+    
     // IProcess
     int start() override;
     int process() override;

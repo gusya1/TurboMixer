@@ -1,13 +1,18 @@
 #pragma once
 
-#include "CommandProcess.hpp"
 #include "IProcess.h"
+
+
+class IButtonWatcher;
+class ICommandProcess;
+
 
 class CExecuteProcess : public IProcess
 {
   struct ExecuteResult;
 
 public:
+  CExecuteProcess(const IButtonWatcher&);
   int start() override;
   int process() override;
   int stop() override;
@@ -21,6 +26,7 @@ private:
   ExecuteResult executeGapCommand(int commandAddress);
   ExecuteResult executeAlarmCommand(int commandAddress);
 
+  const IButtonWatcher& m_buttonWatcher;
   int m_nextCommandNumber = 0;
   int m_nextCommandAddress = 0;
   int m_commandCount = 0;

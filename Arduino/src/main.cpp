@@ -14,8 +14,8 @@ enum class Mode
 
 auto g_idleProcess = CIdleProcess();
 auto g_programLoader = CProgramLoader();
-auto g_executeProcess = CExecuteProcess();
 auto g_buttonWacherProcess = CButtonWatcherProcess();
+auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess);
 
 // при долгом нажатии на кнопку устройство переключается на режим приёма программы
 bool g_buttonLongPressed = false;
