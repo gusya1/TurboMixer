@@ -19,7 +19,7 @@ public:
   ProcessStatus process() override;
 
 private:
-  CSecondTimer m_timer;
+  CTimer m_timer;
   int m_power;
   int m_duration;
 };
@@ -37,7 +37,7 @@ public:
   ProcessStatus process() override;
 
 private:
-  CSecondTimer m_timer;
+  CTimer m_timer;
   int m_duration;
 };
 
@@ -51,8 +51,4 @@ public:
   void pause() override;
   void resume() override;
   ProcessStatus process() override;
-
-private:
-  CSecondTimer m_timer;
-  int m_duration;
 };

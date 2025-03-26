@@ -3,7 +3,10 @@
 #include "ButtonWatcherProcess.h"
 #include "IProcess.h"
 #include "IdleProcess.hpp"
-#include "Timer.h"
+#include "IndicatorProcess.h"
+
+#include <Arduino.h>
+
 
 enum class Mode
 {
@@ -12,9 +15,11 @@ enum class Mode
   Idle,
 };
 
+auto g_indicatorProcess = CIndicatorProcess();
+auto g_buttonWacherProcess = CButtonWatcherProcess();
+
 auto g_idleProcess = CIdleProcess();
 auto g_programLoader = CProgramLoader();
-auto g_buttonWacherProcess = CButtonWatcherProcess();
 auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess);
 
 class CModeSwitcher
@@ -71,10 +76,18 @@ void setup()
 {
   g_buttonWacherProcess.setup();
   g_programLoader.setup();
+  g_indicatorProcess.setup();
+
+
+  g_buttonWacherProcess.start();
+  g_indicatorProcess.start();
+
+  g_indicatorProcess.setNumber(12);
 }
 
 void loop()
 {
   g_buttonWacherProcess.process();
   g_modeSwitcher.process();
+  g_indicatorProcess.process();
 }

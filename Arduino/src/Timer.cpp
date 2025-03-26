@@ -2,23 +2,27 @@
 
 #include <Arduino.h>
 
-CSecondTimer::CSecondTimer() {}
 
-void CSecondTimer::start(int seconds)
+void CTimer::startSeconds(int seconds)
 {
-  m_duration_ms = seconds * 1000;
+  startMilliseconds(seconds * 1000);
+}
+
+void CTimer::startMilliseconds(int milliseconds)
+{
+  m_duration_ms = milliseconds;
   m_startTime = millis();
   m_currentStatus = TimerStatus::Running;
 }
 
-void CSecondTimer::stop()
+void CTimer::stop()
 {
   m_currentStatus = TimerStatus::Idle;
   m_startTime = 0;
   m_duration_ms = 0;
 }
 
-void CSecondTimer::pause()
+void CTimer::pause()
 {
   if (m_currentStatus != TimerStatus::Running)
     return;
@@ -27,7 +31,7 @@ void CSecondTimer::pause()
   m_duration_ms = m_startTime + m_duration_ms - now;
 }
 
-void CSecondTimer::resume()
+void CTimer::resume()
 {
   if (m_currentStatus != TimerStatus::Paused)
     return;
@@ -36,7 +40,7 @@ void CSecondTimer::resume()
   m_startTime = now;
 }
 
-TimerStatus CSecondTimer::process()
+TimerStatus CTimer::process()
 {
   if (m_currentStatus == TimerStatus::Running)
   {

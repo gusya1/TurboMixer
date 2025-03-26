@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Arduino.h>
+#include <stdint.h>
+
 
 enum class TimerStatus
 {
@@ -10,12 +11,13 @@ enum class TimerStatus
   Finished,
 };
 
-class CSecondTimer
+class CTimer
 {
 public:
-  CSecondTimer();
+  CTimer() = default;
 
-  void start(int seconds);
+  void startSeconds(int seconds);
+  void startMilliseconds(int milliseconds);
   void stop();
   void pause();
   void resume();

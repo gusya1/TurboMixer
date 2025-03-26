@@ -26,7 +26,7 @@ int CButtonWatcherProcess::process()
     }
 
     if (state == ButtonState::Pressed && m_lastState == ButtonState::Released)
-        m_longPressTimer.start(LONG_PRESS_BUTTON_DURATION);
+        m_longPressTimer.startSeconds(LONG_PRESS_BUTTON_DURATION_SEC);
 
     if (m_longPressTimer.process() == TimerStatus::Finished)
         m_longPressed = true;

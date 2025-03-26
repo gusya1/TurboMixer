@@ -28,5 +28,5 @@ private:
     ButtonState m_lastState = ButtonState::Released;
     bool m_clicked = false;
     bool m_longPressed = false;
-    CSecondTimer m_longPressTimer;
+    CTimer m_longPressTimer;
 };

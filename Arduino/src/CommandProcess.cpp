@@ -15,7 +15,7 @@ CMixCommandProcess::CMixCommandProcess(int power, int duration)
 
 int CMixCommandProcess::start()
 {
-  m_timer.start(m_duration);
+  m_timer.startSeconds(m_duration);
   return setMixPower(m_power);
 }
 
@@ -49,7 +49,7 @@ CGapCommandProcess::CGapCommandProcess(int duration)
 
 int CGapCommandProcess::start()
 {
-  m_timer.start(m_duration);
+  m_timer.startSeconds(m_duration);
   return SUCCESS;
 }
 
