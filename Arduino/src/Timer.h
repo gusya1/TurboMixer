@@ -6,6 +6,7 @@ enum class TimerStatus
 {
   Idle = 0,
   Running,
+  Paused,
   Finished,
 };
 
@@ -16,10 +17,12 @@ public:
 
   void start(int seconds);
   void stop();
+  void pause();
+  void resume();
   TimerStatus process();
 
 private:
-  bool m_isAvtive = false;
+  TimerStatus m_currentStatus = TimerStatus::Idle;
   uint64_t m_startTime = 0;
   uint64_t m_duration_ms = 0;
 };
