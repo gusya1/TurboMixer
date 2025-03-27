@@ -27,11 +27,11 @@ public:
     void setup();
 
 private:
-    void switchDigit();
+    void changeState();
 
     CShiftRegister<PIN_IND_SER, PIN_IND_RCLK, PIN_IND_SRCLK> m_shiftRegister;
     CTimer m_digitSwitchTimer;
-    bool m_currentDigitIsLeft = true;
+    int m_currentState = 0;
     byte m_leftPattern = 0;
     byte m_rightPattern = 0;
 };

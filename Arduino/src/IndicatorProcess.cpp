@@ -78,7 +78,7 @@ int CIndicatorProcess::start()
 {
     m_leftPattern = 0;
     m_rightPattern = 0;
-    switchDigit();
+    changeState();
     return SUCCESS;
 }
 
@@ -87,9 +87,23 @@ int CIndicatorProcess::process()
     DEBUG_MSG("CIndicatorProcess::process");
     const auto timerStatus = m_digitSwitchTimer.process();
     if (timerStatus == TimerStatus::Finished)
-        switchDigit();
+        changeState();
 
-    m_shiftRegister.writeData(m_currentDigitIsLeft ? m_leftPattern : m_rightPattern);
+    switch (m_currentState)
+    {
+    case 0:
+        m_shiftRegister.writeData(m_leftPattern);
+        break;
+    case 1:
+        m_shiftRegister.writeData(0);
+        break;
+    case 2:
+        m_shiftRegister.writeData(m_rightPattern);
+        break;
+    case 3:
+        m_shiftRegister.writeData(0);
+        break;
+    }
     return SUCCESS;
 }
 
@@ -127,9 +141,11 @@ void CIndicatorProcess::resetIndicator()
     m_rightPattern = 0;
 }
 
-void CIndicatorProcess::switchDigit()
+void CIndicatorProcess::changeState()
 {
-    m_currentDigitIsLeft = !m_currentDigitIsLeft;
-    digitalWrite(PIN_IND_DIGIT_SWITCH, m_currentDigitIsLeft ? LOW : HIGH);
-    m_digitSwitchTimer.startMilliseconds(INDICATOR_DIGIT_SWITCH_DURATION_MSEC);
+    m_currentState = (m_currentState + 1) % 4;
+    digitalWrite(PIN_IND_DIGIT_SWITCH, (m_currentState < 2) ? LOW : HIGH);
+    m_digitSwitchTimer.startMilliseconds((m_currentState % 2)
+                                             ? INDICATOR_DELAY_DURATION_MSEC
+                                             : INDICATOR_DIGIT_SWITCH_DURATION_MSEC);
 }
