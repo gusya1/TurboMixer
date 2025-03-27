@@ -5,6 +5,11 @@
 #include "IdleProcess.hpp"
 #include "IndicatorProcess.h"
 
+#ifdef DEBUG
+#include "avr8-stub.h"
+//#include "app_api.h" 
+#endif
+
 #include <Arduino.h>
 
 
@@ -74,6 +79,9 @@ auto g_modeSwitcher = CModeSwitcher();
 
 void setup()
 {
+#ifdef DEBUG
+  debug_init();
+#endif
   g_buttonWacherProcess.setup();
   g_programLoader.setup();
   g_indicatorProcess.setup();

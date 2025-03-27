@@ -1,5 +1,7 @@
 #pragma once
 
+#define DEBUG
+
 #define BUFFER_LEN 256
 
 #define STX 0x02
