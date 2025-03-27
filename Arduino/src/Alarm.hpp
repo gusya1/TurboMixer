@@ -4,7 +4,8 @@
 
 #include <Arduino.h>
 
+
 inline void alarm()
 {
-  Serial.println("ALARM");
+  tone(PIN_PIEZO, 1275, 1000);
 }

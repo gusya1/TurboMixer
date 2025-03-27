@@ -23,13 +23,18 @@ enum class Mode
 auto g_indicatorProcess = CIndicatorProcess();
 auto g_buttonWacherProcess = CButtonWatcherProcess();
 
-auto g_idleProcess = CIdleProcess();
+auto g_idleProcess = CIdleProcess(g_indicatorProcess);
 auto g_programLoader = CProgramLoader();
 auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess, g_indicatorProcess);
 
 class CModeSwitcher
 {
 public:
+  void start()
+  {
+    changeMode(g_idleProcess, Mode::Idle);
+  }
+
   void process()
   {
     if (m_currentMode == Mode::Idle && g_buttonWacherProcess.longPressed())
@@ -88,11 +93,14 @@ void setup()
 
   g_buttonWacherProcess.start();
   g_indicatorProcess.start();
+
+  g_modeSwitcher.start();
 }
 
 void loop()
 {
   g_buttonWacherProcess.process();
   g_modeSwitcher.process();
+
   g_indicatorProcess.process();
 }

@@ -30,3 +30,4 @@
 #define PIN_IND_RCLK    12
 #define PIN_IND_SRCLK   11
 #define PIN_IND_DIGIT_SWITCH 10
+#define PIN_PIEZO 9
