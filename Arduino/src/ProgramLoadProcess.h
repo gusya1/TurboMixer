@@ -1,15 +1,16 @@
 #pragma once
 
 #include "IProcess.h"
+#include "IIndicator.h"
 
 
-class CProgramLoader : public IProcess
+class CProgramLoadProcess : public IProcess
 {
   enum class LoadStatus;
 
 public:
-  CProgramLoader();
-  ~CProgramLoader() override = default;
+  CProgramLoadProcess(IIndicator &indicator);
+  ~CProgramLoadProcess() override = default;
 
   void setup();
 
@@ -21,5 +22,6 @@ public:
 private:
   void setLoadStatus(LoadStatus status);
 
+  IIndicator& m_indicator;
   LoadStatus m_loadStatus;
 };

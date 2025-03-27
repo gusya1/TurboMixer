@@ -59,8 +59,16 @@ namespace
             return A | B | E | F | G;
         case 'A':
             return A | B | C | E | F | G;
+        case 'L':
+            return D | E | F;
+        case 'S':
+            return A | C | D | F | G;
+        case 'o':
+            return C | D | E | G;
         case 'r':
             return E | G;
+        case 'u':
+            return C | D | E;
         case ' ':
             return 0;
         default:

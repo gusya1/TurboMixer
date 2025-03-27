@@ -1,4 +1,4 @@
-#include "ProgramLoader.h"
+#include "ProgramLoadProcess.h"
 #include "ExecuteProcess.h"
 #include "ButtonWatcherProcess.h"
 #include "IProcess.h"
@@ -24,7 +24,7 @@ auto g_indicatorProcess = CIndicatorProcess();
 auto g_buttonWacherProcess = CButtonWatcherProcess();
 
 auto g_idleProcess = CIdleProcess(g_indicatorProcess);
-auto g_programLoader = CProgramLoader();
+auto g_programLoader = CProgramLoadProcess(g_indicatorProcess);
 auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess, g_indicatorProcess);
 
 class CModeSwitcher

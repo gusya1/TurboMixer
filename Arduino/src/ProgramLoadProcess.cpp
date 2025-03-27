@@ -1,4 +1,4 @@
-#include "ProgramLoader.h"
+#include "ProgramLoadProcess.h"
 
 #include "Defines.hpp"
 #include "IProcess.h"
@@ -45,7 +45,7 @@ namespace
   }
 }
 
-enum class CProgramLoader::LoadStatus
+enum class CProgramLoadProcess::LoadStatus
 {
   Idle = 0,
   Ready,
@@ -54,17 +54,19 @@ enum class CProgramLoader::LoadStatus
   Fail
 };
 
-CProgramLoader::CProgramLoader() : m_loadStatus{LoadStatus::Idle}
+CProgramLoadProcess::CProgramLoadProcess(IIndicator &indicator)
+    : m_indicator{indicator},
+      m_loadStatus{LoadStatus::Idle}
 {
 }
 
-void CProgramLoader::setup()
+void CProgramLoadProcess::setup()
 {
   Serial.begin(9600);
   Serial.setTimeout(100);
 }
 
-int CProgramLoader::process()
+int CProgramLoadProcess::process()
 {
   if (Serial.peek() != STX)
     return SUCCESS;
@@ -75,16 +77,16 @@ int CProgramLoader::process()
     setLoadStatus(LoadStatus::Success);
   else
     setLoadStatus(LoadStatus::Fail);
-  return PROCESS_FINISHED;
+  return SUCCESS;
 }
 
-int CProgramLoader::start()
+int CProgramLoadProcess::start()
 {
   setLoadStatus(LoadStatus::Ready);
   return SUCCESS;
 }
 
-int CProgramLoader::stop()
+int CProgramLoadProcess::stop()
 {
   if (m_loadStatus == LoadStatus::Loading)
     return LOADING_NOT_FINISHED;
@@ -92,22 +94,25 @@ int CProgramLoader::stop()
   return SUCCESS;
 }
 
-void CProgramLoader::setLoadStatus(LoadStatus status)
+void CProgramLoadProcess::setLoadStatus(LoadStatus status)
 {
   m_loadStatus = status;
   switch (m_loadStatus)
   {
   case LoadStatus::Ready:
     Serial.println(LOAD_STATUS_READY);
+    m_indicator.setChars("Lo");
     break;
   case LoadStatus::Loading:
     Serial.println(LOAD_STATUS_LOADING);
     break;
   case LoadStatus::Success:
     Serial.println(LOAD_STATUS_SUCCESS);
+    m_indicator.setChars("Su");
     break;
   case LoadStatus::Fail:
     Serial.println(LOAD_STATUS_FAIL);
+    m_indicator.setChars("E1");
     break;
   default:
     break;
