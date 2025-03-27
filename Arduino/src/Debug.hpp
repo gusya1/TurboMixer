@@ -1,6 +1,6 @@
-#include <Arduino.h>
+#include "Defines.hpp"
 
-//#define DEBUG
+#include <Arduino.h>
 
 #ifdef DEBUG
     #define DEBUG_MSG(msg) Serial.println(msg)

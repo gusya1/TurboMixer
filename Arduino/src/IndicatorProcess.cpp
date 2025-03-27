@@ -6,16 +6,15 @@
 #include "Defines.hpp"
 #include "Debug.hpp"
 
-
 namespace pattern_bits
 {
-    // 
+    //
     // |--A--|
     // |F   B|
     // |--G--|
     // |E   C|
     // |--D--| DP
-    // 
+    //
 
     constexpr byte A = 1 << 2;
     constexpr byte B = 1 << 4;
@@ -58,12 +57,16 @@ namespace
             return A | D | E | F | G;
         case 'P':
             return A | B | E | F | G;
+        case 'A':
+            return A | B | C | E | F | G;
+        case ' ':
+            return 0;
         default:
             break;
         }
         return 0;
     }
-    
+
     byte getDigitPattern(int digit)
     {
         digit = digit % 10;
@@ -71,7 +74,7 @@ namespace
     }
 }
 
-int CIndicatorProcess::start() 
+int CIndicatorProcess::start()
 {
     m_leftPattern = 0;
     m_rightPattern = 0;
@@ -85,8 +88,8 @@ int CIndicatorProcess::process()
     const auto timerStatus = m_digitSwitchTimer.process();
     if (timerStatus == TimerStatus::Finished)
         switchDigit();
-    
-    m_shiftRegister.writeData(m_currentDigitIsLeft?m_leftPattern:m_rightPattern);
+
+    m_shiftRegister.writeData(m_currentDigitIsLeft ? m_leftPattern : m_rightPattern);
     return SUCCESS;
 }
 
@@ -109,12 +112,24 @@ void CIndicatorProcess::setNumber(int number)
     const auto ones = number % 10;
     m_rightPattern = getDigitPattern(ones);
     const auto tens = (number / 10) % 10;
-    m_leftPattern = (tens != 0)? getDigitPattern(tens): 0;
+    m_leftPattern = (tens != 0) ? getDigitPattern(tens) : 0;
+}
+
+void CIndicatorProcess::setChars(const char chars[2])
+{
+    m_leftPattern = getCharPattern(chars[0]);
+    m_rightPattern = getCharPattern(chars[1]);
+}
+
+void CIndicatorProcess::resetIndicator()
+{
+    m_leftPattern = 0;
+    m_rightPattern = 0;
 }
 
 void CIndicatorProcess::switchDigit()
 {
     m_currentDigitIsLeft = !m_currentDigitIsLeft;
-    digitalWrite(PIN_IND_DIGIT_SWITCH, m_currentDigitIsLeft?LOW:HIGH);
+    digitalWrite(PIN_IND_DIGIT_SWITCH, m_currentDigitIsLeft ? LOW : HIGH);
     m_digitSwitchTimer.startMilliseconds(INDICATOR_DIGIT_SWITCH_DURATION_MSEC);
 }

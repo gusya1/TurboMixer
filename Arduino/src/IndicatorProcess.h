@@ -20,6 +20,8 @@ public:
 
     // IIndicator
     void setNumber(int) override;
+    void setChars(const char chars[2]) override;
+    void resetIndicator() override;
 
     // own
     void setup();

@@ -80,10 +80,15 @@ int CExecuteProcess::process()
   if (m_buttonWatcher.clicked() && !m_initialProcess)
   {
     m_paused = !m_paused;
-    if (m_paused)
+    if (m_paused) {
       m_pCommandProcess->pause();
-    else
+      m_indicator.setChars("PA");
+    }
+    else {
       m_pCommandProcess->resume();
+      m_indicator.setNumber(m_nextCommandNumber - 1);
+    }
+      
   }
 
   m_initialProcess = false;
@@ -105,7 +110,11 @@ int CExecuteProcess::stop()
 int CExecuteProcess::executeNextCommand()
 {
   if (m_nextCommandNumber == m_commandCount)
+  {
+    m_indicator.resetIndicator();
     return PROGRAM_FINISHED;
+  }
+    
 
   m_indicator.setNumber(m_nextCommandNumber);
 
