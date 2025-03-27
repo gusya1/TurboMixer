@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "ShiftRegister.hpp"
 #include "Defines.hpp"
+#include "Debug.hpp"
 
 
 namespace pattern_bits
@@ -80,6 +81,7 @@ int CIndicatorProcess::start()
 
 int CIndicatorProcess::process()
 {
+    DEBUG_MSG("CIndicatorProcess::process");
     const auto timerStatus = m_digitSwitchTimer.process();
     if (timerStatus == TimerStatus::Finished)
         switchDigit();

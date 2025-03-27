@@ -4,6 +4,8 @@
 #include "CommandProcess.h"
 #include "ICommandProcess.h"
 #include "IButtonWatcher.h"
+#include "IIndicator.h"
+#include "Debug.hpp"
 
 #include <EEPROM.h>
 #include <Arduino.h>
@@ -51,8 +53,8 @@ struct CExecuteProcess::ExecuteResult
   uint32_t commandSize;
 };
 
-CExecuteProcess::CExecuteProcess(const IButtonWatcher &buttonWatcher)
-    : m_buttonWatcher{buttonWatcher}
+CExecuteProcess::CExecuteProcess(const IButtonWatcher &buttonWatcher, IIndicator& indicator)
+    : m_buttonWatcher{buttonWatcher}, m_indicator{indicator}
 {
 }
 
@@ -64,18 +66,18 @@ int CExecuteProcess::start()
   m_nextCommandNumber = 0;
   m_nextCommandAddress = sizeof(header);
 
-  if (m_buttonWatcher.clicked())
-    m_paused = true;
+  m_initialProcess = true;
 
   return executeNextCommand();
 }
 
 int CExecuteProcess::process()
 {
+  DEBUG_MSG("CExecuteProcess::process");
   if (!m_pCommandProcess)
     return SUCCESS;
 
-  if (m_buttonWatcher.clicked())
+  if (m_buttonWatcher.clicked() && !m_initialProcess)
   {
     m_paused = !m_paused;
     if (m_paused)
@@ -83,6 +85,8 @@ int CExecuteProcess::process()
     else
       m_pCommandProcess->resume();
   }
+
+  m_initialProcess = false;
 
   const auto status = m_pCommandProcess->process();
   if (status == ProcessStatus::Finished)
@@ -102,6 +106,8 @@ int CExecuteProcess::executeNextCommand()
 {
   if (m_nextCommandNumber == m_commandCount)
     return PROGRAM_FINISHED;
+
+  m_indicator.setNumber(m_nextCommandNumber);
 
   const auto result = executeCommand(m_nextCommandAddress);
 

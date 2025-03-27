@@ -11,7 +11,7 @@ namespace
   class CProgramWriter
   {
   public:
-    bool write(char *data, int len)
+    bool write(const char *data, int len)
     {
       if (EEPROM.length() < m_address + len)
         return false;
@@ -36,9 +36,9 @@ namespace
     while (!endReceived && !readTimeout && EEPROMWriteStatus)
     {
       auto len = Serial.readBytes(buffer, BUFFER_LEN);
-      endReceived = buffer[len - 1] == ETX;
       if (len == 0)
         readTimeout = true;
+      endReceived = buffer[len - 1] == ETX;
       EEPROMWriteStatus = writer.write(buffer, len);
     }
     return endReceived && EEPROMWriteStatus;

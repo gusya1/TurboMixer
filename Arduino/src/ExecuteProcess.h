@@ -4,6 +4,7 @@
 
 
 class IButtonWatcher;
+class IIndicator;
 class ICommandProcess;
 
 
@@ -12,7 +13,7 @@ class CExecuteProcess : public IProcess
   struct ExecuteResult;
 
 public:
-  CExecuteProcess(const IButtonWatcher&);
+  CExecuteProcess(const IButtonWatcher&, IIndicator&);
   int start() override;
   int process() override;
   int stop() override;
@@ -27,6 +28,8 @@ private:
   ExecuteResult executeAlarmCommand(int commandAddress);
 
   const IButtonWatcher& m_buttonWatcher;
+  IIndicator& m_indicator;
+  bool m_initialProcess = true;
   bool m_paused = false;
 
   int m_nextCommandNumber = 0;

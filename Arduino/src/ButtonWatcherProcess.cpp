@@ -16,22 +16,22 @@ int CButtonWatcherProcess::start()
 int CButtonWatcherProcess::process()
 {
     m_clicked = false;
-    auto state = readState();
+    auto btnState = readState();
 
-    if (state == ButtonState::Released && m_lastState == ButtonState::Pressed)
+    if (btnState == ButtonState::Released && m_lastState == ButtonState::Pressed)
     {
         m_clicked = true;
         m_longPressed = false;
         m_longPressTimer.stop();
     }
 
-    if (state == ButtonState::Pressed && m_lastState == ButtonState::Released)
+    if (btnState == ButtonState::Pressed && m_lastState == ButtonState::Released)
         m_longPressTimer.startSeconds(LONG_PRESS_BUTTON_DURATION_SEC);
 
     if (m_longPressTimer.process() == TimerStatus::Finished)
         m_longPressed = true;
 
-    m_lastState = state;
+    m_lastState = btnState;
     return SUCCESS;
 }
 

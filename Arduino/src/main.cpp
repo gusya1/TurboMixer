@@ -20,7 +20,7 @@ auto g_buttonWacherProcess = CButtonWatcherProcess();
 
 auto g_idleProcess = CIdleProcess();
 auto g_programLoader = CProgramLoader();
-auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess);
+auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess, g_indicatorProcess);
 
 class CModeSwitcher
 {
@@ -78,11 +78,8 @@ void setup()
   g_programLoader.setup();
   g_indicatorProcess.setup();
 
-
   g_buttonWacherProcess.start();
   g_indicatorProcess.start();
-
-  g_indicatorProcess.setNumber(12);
 }
 
 void loop()

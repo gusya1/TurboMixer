@@ -4,9 +4,10 @@
 #include "Timer.h"
 #include "ShiftRegister.hpp"
 #include "Defines.hpp"
+#include "IIndicator.h"
 
 
-class CIndicatorProcess : public IProcess
+class CIndicatorProcess : public IProcess, public IIndicator
 {
 public:
     CIndicatorProcess() = default;
@@ -17,9 +18,11 @@ public:
     int process() override;
     int stop() override;
 
+    // IIndicator
+    void setNumber(int) override;
+
     // own
     void setup();
-    void setNumber(int);
 
 private:
     void switchDigit();

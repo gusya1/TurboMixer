@@ -27,7 +27,7 @@ private:
 class CGapCommandProcess : public ICommandProcess
 {
 public:
-  CGapCommandProcess(int duration);
+  explicit CGapCommandProcess(int duration);
   ~CGapCommandProcess() override = default;
 
   // ICommandProcess

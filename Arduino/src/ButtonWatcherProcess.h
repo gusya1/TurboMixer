@@ -17,10 +17,12 @@ public:
     int stop() override;
 
     // IButtonWatcher
-    void setup() override;
     bool clicked() const override;
     bool longPressed() const override;
     ButtonState state() const override;
+
+    // own
+    void setup();
 
 private:
     ButtonState readState();
