@@ -1,6 +1,7 @@
 from loader.loader import SerialLoader, LoadStatus, OpenPortError
 from parser.code_parser import parse_code
-from compiler.compiler import compile_program
+from compiler.compiler import compile_program, CompilerError
+
 import argparse
 import logging
 
@@ -18,46 +19,47 @@ def read_program_file(program_file_path):
 
 def main():
     logging.basicConfig(level=logging.INFO)
-
-    args = read_arguments()
-
-    loader = SerialLoader()
     try:
-        loader.connect(args.port, args.baudrate)
-    except OpenPortError as e:
-        logging.error("Ошибка открытия порта: {}".format(str(e)))
-        return
+        args = read_arguments()
 
-    program_text = read_program_file(args.program_file_path)
-    program = parse_code(program_text)
-    program_bin = compile_program(program)
-
-    # Ожидание готовности
-    status = LoadStatus.Fail
-    while status is not LoadStatus.Ready:
-        logging.info("Ожидание готовности устройства. Перезагрузите устройство.")
-        status = loader.read_status()
-        if loader.read_status() is not LoadStatus.Ready:
-            logging.error("Неожиданный статус устройства: {}".format(str(status)))
-
-    logging.info("Устройство готово. Инициализируется запись.")
-    # Загрузка программы
-    loader.load(program_bin)
-
-    # Ожидание окончания загрузки
-    while True:
-        status = loader.read_status()
-        if status is LoadStatus.Loading:
-            logging.info("Осуществляется запись. Подождите.")
-        if status is LoadStatus.Fail:
-            logging.info("Запись завершена с ошибкой.")
+        loader = SerialLoader()
+        try:
+            loader.connect(args.port, args.baudrate)
+        except OpenPortError as e:
+            logging.error("Ошибка открытия порта: {}".format(str(e)))
             return
-        if status is LoadStatus.Success:
-            logging.info("Запись завершена успешно.")
-            return
-        if status is LoadStatus.Ready:
-            logging.error("Неожиданный статус устройства: {}".format(str(status)))
-            return
+
+        program_text = read_program_file(args.program_file_path)
+        program = parse_code(program_text)
+        program_bin = compile_program(program)
+        # Ожидание готовности
+        status = LoadStatus.Fail
+        while status is not LoadStatus.Ready:
+            logging.info("Ожидание готовности устройства. Войдите в режим загрузки.")
+            status = loader.read_status()
+            if status is not LoadStatus.Ready:
+                logging.error("Неожиданный статус устройства: {}".format(str(status)))
+
+        logging.info("Устройство готово. Инициализируется запись.")
+        # Загрузка программы
+        loader.load(program_bin)
+
+        # Ожидание окончания загрузки
+        while True:
+            status = loader.read_status()
+            if status is LoadStatus.Loading:
+                logging.info("Осуществляется запись. Подождите.")
+            if status is LoadStatus.Fail:
+                logging.info("Запись завершена с ошибкой.")
+                return
+            if status is LoadStatus.Success:
+                logging.info("Запись завершена успешно.")
+                return
+            if status is LoadStatus.Ready:
+                logging.error("Неожиданный статус устройства: {}".format(str(status)))
+                return
+    except CompilerError as e:
+        logging.error("Ошибка компиляции: {}".format(e))
 
 
 if __name__ == "__main__":

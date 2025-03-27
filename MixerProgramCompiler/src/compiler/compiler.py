@@ -1,5 +1,8 @@
 from program.command import Command
 
+class CompilerError(Exception):
+    pass
+
 STX = b'\x02'
 ETX = b'\x03'
 
@@ -24,7 +27,10 @@ def compile_command(command: Command) -> bytes:
 def compile_program(program: list[Command]) -> bytes:
     result = b''
     result += STX
-    result += to_bytes(len(program), 1, signed=False)
+    try:
+        result += to_bytes(len(program), 1, signed=False)
+    except OverflowError:
+        raise CompilerError("Слишком много команд")
     for command in program:
         result +=  compile_command(command)
     result += ETX
