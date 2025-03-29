@@ -2,33 +2,32 @@
 
 #include "Defines.hpp"
 #include "Timer.h"
-#include "Mixer.hpp"
 #include "Alarm.hpp"
 #include "ICommandProcess.h"
 
 #include <Arduino.h>
 
-CMixCommandProcess::CMixCommandProcess(int power, int duration)
-    : m_power{power}, m_duration{duration}
+CMixCommandProcess::CMixCommandProcess(IMixerController& mixerController, int power, int duration)
+    : m_mixerController{mixerController}, m_power{power}, m_duration{duration}
 {
 }
 
 int CMixCommandProcess::start()
 {
   m_timer.startSeconds(m_duration);
-  return setMixPower(m_power);
+  return m_mixerController.setMixPower(m_power);
 }
 
 void CMixCommandProcess::pause()
 {
   m_timer.pause();
-  stopMixer();
+  m_mixerController.stop();
 }
 
 void CMixCommandProcess::resume()
 {
   m_timer.resume();
-  setMixPower(m_power);
+  m_mixerController.setMixPower(m_power);
 }
 
 ProcessStatus CMixCommandProcess::process()
@@ -36,7 +35,7 @@ ProcessStatus CMixCommandProcess::process()
   const auto timerStaus = m_timer.process();
   if (timerStaus != TimerStatus::Finished)
     return ProcessStatus::Running;
-  stopMixer();
+  m_mixerController.stop();
   return ProcessStatus::Finished;
 }
 

@@ -53,8 +53,8 @@ struct CExecuteProcess::ExecuteResult
   uint32_t commandSize;
 };
 
-CExecuteProcess::CExecuteProcess(const IButtonWatcher &buttonWatcher, IIndicator& indicator)
-    : m_buttonWatcher{buttonWatcher}, m_indicator{indicator}
+CExecuteProcess::CExecuteProcess(const IButtonWatcher &buttonWatcher, IIndicator &indicator, IMixerController &mixerController)
+    : m_buttonWatcher{buttonWatcher}, m_indicator{indicator}, m_mixerController{mixerController}
 {
 }
 
@@ -80,15 +80,16 @@ int CExecuteProcess::process()
   if (m_buttonWatcher.clicked() && !m_initialProcess)
   {
     m_paused = !m_paused;
-    if (m_paused) {
+    if (m_paused)
+    {
       m_pCommandProcess->pause();
       m_indicator.setChars("PA");
     }
-    else {
+    else
+    {
       m_pCommandProcess->resume();
       m_indicator.setNumber(m_nextCommandNumber - 1);
     }
-      
   }
 
   m_initialProcess = false;
@@ -114,7 +115,6 @@ int CExecuteProcess::executeNextCommand()
     m_indicator.resetIndicator();
     return PROGRAM_FINISHED;
   }
-    
 
   m_indicator.setNumber(m_nextCommandNumber);
 
@@ -149,7 +149,7 @@ CExecuteProcess::ExecuteResult CExecuteProcess::executeMixCommand(int commandAdd
   if (command.commandType != CommandType::Mix)
     return {PROGRAM_READ_ERROR, 0};
 
-  return {startNewCommandProcess(new CMixCommandProcess(command.power, command.duration)), sizeof(command)};
+  return {startNewCommandProcess(new CMixCommandProcess(m_mixerController, command.power, command.duration)), sizeof(command)};
 }
 
 CExecuteProcess::ExecuteResult CExecuteProcess::executeGapCommand(int commandAddress)

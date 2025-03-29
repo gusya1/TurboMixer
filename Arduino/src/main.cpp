@@ -4,6 +4,7 @@
 #include "IProcess.h"
 #include "IdleProcess.hpp"
 #include "IndicatorProcess.h"
+#include "MixerController.hpp"
 
 #ifdef DEBUG
 #include "avr8-stub.h"
@@ -22,10 +23,11 @@ enum class Mode
 
 auto g_indicatorProcess = CIndicatorProcess();
 auto g_buttonWacherProcess = CButtonWatcherProcess();
+auto g_mixerController = CMixerController();
 
 auto g_idleProcess = CIdleProcess(g_indicatorProcess);
 auto g_programLoader = CProgramLoadProcess(g_indicatorProcess);
-auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess, g_indicatorProcess);
+auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess, g_indicatorProcess, g_mixerController);
 
 class CModeSwitcher
 {
@@ -93,6 +95,7 @@ void setup()
 
   g_buttonWacherProcess.start();
   g_indicatorProcess.start();
+  g_mixerController.setup();
 
   g_modeSwitcher.start();
 }

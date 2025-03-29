@@ -6,6 +6,7 @@
 class IButtonWatcher;
 class IIndicator;
 class ICommandProcess;
+class IMixerController;
 
 
 class CExecuteProcess : public IProcess
@@ -13,7 +14,7 @@ class CExecuteProcess : public IProcess
   struct ExecuteResult;
 
 public:
-  CExecuteProcess(const IButtonWatcher&, IIndicator&);
+  CExecuteProcess(const IButtonWatcher&, IIndicator&, IMixerController& );
   int start() override;
   int process() override;
   int stop() override;
@@ -29,6 +30,7 @@ private:
 
   const IButtonWatcher& m_buttonWatcher;
   IIndicator& m_indicator;
+  IMixerController& m_mixerController;
   bool m_initialProcess = true;
   bool m_paused = false;
 

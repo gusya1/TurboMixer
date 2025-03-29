@@ -2,6 +2,7 @@
 
 #include "Timer.h"
 #include "ICommandProcess.h"
+#include "IMixerController.h"
 
 #include <Arduino.h>
 
@@ -9,7 +10,7 @@
 class CMixCommandProcess : public ICommandProcess
 {
 public:
-  CMixCommandProcess(int power, int duration);
+  CMixCommandProcess(IMixerController& mixerController, int power, int duration);
   ~CMixCommandProcess() override = default;
 
   // ICommandProcess
@@ -19,6 +20,7 @@ public:
   ProcessStatus process() override;
 
 private:
+  IMixerController& m_mixerController;
   CTimer m_timer;
   int m_power;
   int m_duration;
