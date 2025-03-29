@@ -27,13 +27,11 @@
 
 #define PIN_BUTTON      3
 
-#define PIN_IND_SER     13
+#define PIN_COMMON_SER     13
 #define PIN_IND_RCLK    12
-#define PIN_IND_SRCLK   11
+#define PIN_COMMON_SRCLK   11
 #define PIN_IND_DIGIT_SWITCH 10
 
 #define PIN_PIEZO 9
 
-#define PIN_MIXER_SER     8
 #define PIN_MIXER_RCLK    7
-#define PIN_MIXER_SRCLK   6

@@ -29,7 +29,7 @@ public:
 private:
     void changeState();
 
-    CShiftRegister<PIN_IND_SER, PIN_IND_RCLK, PIN_IND_SRCLK> m_shiftRegister;
+    CShiftRegister<PIN_COMMON_SER, PIN_IND_RCLK, PIN_COMMON_SRCLK> m_shiftRegister;
     CTimer m_digitSwitchTimer;
     int m_currentState = 0;
     byte m_leftPattern = 0;

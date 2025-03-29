@@ -19,7 +19,7 @@ public:
   void setup();
 
 private:
-  CShiftRegister<PIN_MIXER_SER, PIN_MIXER_RCLK, PIN_MIXER_SRCLK> m_shiftRegister;
+  CShiftRegister<PIN_COMMON_SER, PIN_MIXER_RCLK, PIN_COMMON_SRCLK> m_shiftRegister;
 };
 
 int CMixerController::setMixPower(int power)
@@ -27,7 +27,6 @@ int CMixerController::setMixPower(int power)
   if (power > 6 || power < 1)
     return INCORRECT_POWER_ERROR;
   byte pattern = byte(0b10000000) >> (power - 1);
-  Serial.println(pattern);
   m_shiftRegister.writeData(pattern);
   return SUCCESS;
 }
