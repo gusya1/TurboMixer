@@ -2,6 +2,7 @@
 #include "ExecuteProcess.h"
 #include "ButtonWatcherProcess.h"
 #include "IProcess.h"
+#include "EncoderWatcherProcess.h"
 #include "IdleProcess.hpp"
 #include "IndicatorProcess.h"
 #include "MixerController.hpp"
@@ -23,6 +24,7 @@ enum class Mode
 
 auto g_indicatorProcess = CIndicatorProcess();
 auto g_buttonWacherProcess = CButtonWatcherProcess();
+auto g_encoderWatcherProcess = CEncoderWatcherProcess();
 auto g_mixerController = CMixerController();
 
 auto g_idleProcess = CIdleProcess(g_indicatorProcess);
@@ -92,10 +94,12 @@ void setup()
   g_buttonWacherProcess.setup();
   g_programLoader.setup();
   g_indicatorProcess.setup();
+  g_encoderWatcherProcess.setup();
+  g_mixerController.setup();
 
   g_buttonWacherProcess.start();
   g_indicatorProcess.start();
-  g_mixerController.setup();
+  g_encoderWatcherProcess.start();
 
   g_modeSwitcher.start();
 }
@@ -103,7 +107,8 @@ void setup()
 void loop()
 {
   g_buttonWacherProcess.process();
-  g_modeSwitcher.process();
-
   g_indicatorProcess.process();
+  g_encoderWatcherProcess.process();
+  
+  g_modeSwitcher.process();
 }
