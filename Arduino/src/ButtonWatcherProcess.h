@@ -5,10 +5,11 @@
 #include "Defines.hpp"
 #include "Timer.h"
 
+
 class CButtonWatcherProcess : public IProcess, public IButtonWatcher
 {
 public:
-    CButtonWatcherProcess() = default;
+    CButtonWatcherProcess(int buttonPin);
     ~CButtonWatcherProcess() override = default;
 
     // IProcess
@@ -26,6 +27,8 @@ public:
 
 private:
     ButtonState readState();
+
+    int m_buttonPin;
 
     ButtonState m_lastState = ButtonState::Released;
     bool m_clicked = false;

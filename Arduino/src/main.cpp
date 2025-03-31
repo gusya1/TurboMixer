@@ -23,7 +23,8 @@ enum class Mode
 };
 
 auto g_indicatorProcess = CIndicatorProcess();
-auto g_buttonWacherProcess = CButtonWatcherProcess();
+auto g_buttonWacherProcess = CButtonWatcherProcess(PIN_BUTTON);
+auto g_switchButtonWacherProcess = CButtonWatcherProcess(PIN_ENC_SW);
 auto g_encoderWatcherProcess = CEncoderWatcherProcess();
 auto g_mixerController = CMixerController();
 
@@ -95,11 +96,13 @@ void setup()
   g_programLoader.setup();
   g_indicatorProcess.setup();
   g_encoderWatcherProcess.setup();
+  g_switchButtonWacherProcess.setup();
   g_mixerController.setup();
 
   g_buttonWacherProcess.start();
   g_indicatorProcess.start();
   g_encoderWatcherProcess.start();
+  g_switchButtonWacherProcess.start();
 
   g_modeSwitcher.start();
 }
@@ -109,6 +112,7 @@ void loop()
   g_buttonWacherProcess.process();
   g_indicatorProcess.process();
   g_encoderWatcherProcess.process();
-  
+  g_switchButtonWacherProcess.process();
+
   g_modeSwitcher.process();
 }

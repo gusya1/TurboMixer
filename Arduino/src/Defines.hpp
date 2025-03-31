@@ -39,3 +39,4 @@
 
 #define PIN_ENC_CLK 4
 #define PIN_ENC_DT 5
+#define PIN_ENC_SW 6

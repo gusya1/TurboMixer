@@ -6,6 +6,10 @@
 
 #include <Arduino.h>
 
+CButtonWatcherProcess::CButtonWatcherProcess(int buttonPin)
+: m_buttonPin{buttonPin}
+{}
+
 int CButtonWatcherProcess::start()
 {
     m_lastState = readState();
@@ -60,10 +64,10 @@ ButtonState CButtonWatcherProcess::state() const
 
 void CButtonWatcherProcess::setup()
 {
-    pinMode(PIN_BUTTON, INPUT_PULLUP);
+    pinMode(m_buttonPin, INPUT_PULLUP);
 }
 
 ButtonState CButtonWatcherProcess::readState()
 {
-    return digitalRead(PIN_BUTTON) ? ButtonState::Released : ButtonState::Pressed;
+    return digitalRead(m_buttonPin) ? ButtonState::Released : ButtonState::Pressed;
 }
