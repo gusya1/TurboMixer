@@ -7,13 +7,7 @@
 #include "IndicatorProcess.h"
 #include "MixerController.hpp"
 
-#ifdef DEBUG
-#include "avr8-stub.h"
-//#include "app_api.h" 
-#endif
-
 #include <Arduino.h>
-
 
 enum class Mode
 {
@@ -30,7 +24,11 @@ auto g_mixerController = CMixerController();
 
 auto g_idleProcess = CIdleProcess(g_indicatorProcess);
 auto g_programLoader = CProgramLoadProcess(g_indicatorProcess);
-auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess, g_indicatorProcess, g_mixerController);
+auto g_executeProcess = CExecuteProcess(g_buttonWacherProcess,
+                                        g_switchButtonWacherProcess,
+                                        g_encoderWatcherProcess,
+                                        g_indicatorProcess,
+                                        g_mixerController);
 
 class CModeSwitcher
 {
@@ -55,7 +53,7 @@ public:
   }
 
 private:
-  void changeMode(IProcess& newProcess, Mode mode)
+  void changeMode(IProcess &newProcess, Mode mode)
   {
     const auto stopResult = m_pCurrentProcess->stop();
     if (stopResult != SUCCESS)
@@ -79,19 +77,14 @@ private:
     changeMode(g_idleProcess, Mode::Idle);
   }
 
-  IProcess* m_pCurrentProcess = &g_idleProcess;
+  IProcess *m_pCurrentProcess = &g_idleProcess;
   Mode m_currentMode = Mode::Idle;
 };
 
 auto g_modeSwitcher = CModeSwitcher();
 
-
-
 void setup()
 {
-#ifdef DEBUG
-  debug_init();
-#endif
   g_buttonWacherProcess.setup();
   g_programLoader.setup();
   g_indicatorProcess.setup();

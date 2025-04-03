@@ -1,41 +1,60 @@
 #pragma once
 
 #include "IProcess.h"
-
+#include "Program.h"
+#include "Commands.h"
 
 class IButtonWatcher;
+class IEncoderWatcher;
 class IIndicator;
 class ICommandProcess;
 class IMixerController;
 
-
 class CExecuteProcess : public IProcess
 {
-  struct ExecuteResult;
+  enum class ExecuteState
+  {
+    Running = 0,
+    Paused,
+    ChooseOperation,
+    Finished
+  };
 
 public:
-  CExecuteProcess(const IButtonWatcher&, IIndicator&, IMixerController& );
+  CExecuteProcess(const IButtonWatcher &pauseButtonWatcher,
+                  const IButtonWatcher &changeStateButtonWatcher,
+                  const IEncoderWatcher &,
+                  IIndicator &,
+                  IMixerController &);
   int start() override;
   int process() override;
   int stop() override;
 
 private:
-  int executeNextCommand();
-  int startNewCommandProcess(ICommandProcess *newCommandProcess);
+  void checkStateProcess();
+  void pauseProcess();
+  void chooseOperationProcess();
+  void indicatorProcess();
+  void operationProcess();
+  void setCurrentCommandNumberOnIndicator();
+
+  void executeNextCommand();
+  void startNewCommandProcess(ICommandProcess *newCommandProcess);
   void releaseCurrentCommandProcess();
-  ExecuteResult executeCommand(int commandAddress);
-  ExecuteResult executeMixCommand(int commandAddress);
-  ExecuteResult executeGapCommand(int commandAddress);
-  ExecuteResult executeAlarmCommand(int commandAddress);
+  void executeCommand(const Command &);
+  void executeMixCommand(const MixCommand &);
+  void executeGapCommand(const GapCommand &);
+  void executeAlarmCommand(const AlarmCommand &);
 
-  const IButtonWatcher& m_buttonWatcher;
-  IIndicator& m_indicator;
-  IMixerController& m_mixerController;
+  const IButtonWatcher &m_pauseButtonWatcher;
+  const IButtonWatcher &m_changeStateButtonWatcher;
+  const IEncoderWatcher &m_encoder;
+  IIndicator &m_indicator;
+  IMixerController &m_mixerController;
   bool m_initialProcess = true;
-  bool m_paused = false;
+  ExecuteState m_state;
+  int m_chosenOperation = 0;
 
-  int m_nextCommandNumber = 0;
-  int m_nextCommandAddress = 0;
-  int m_commandCount = 0;
+  CProgram m_program;
   ICommandProcess *m_pCommandProcess = nullptr;
 };

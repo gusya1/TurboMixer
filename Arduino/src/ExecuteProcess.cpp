@@ -6,179 +6,181 @@
 #include "IButtonWatcher.h"
 #include "IIndicator.h"
 #include "Debug.hpp"
+#include "IEncoderWatcher.h"
 
-#include <EEPROM.h>
-#include <Arduino.h>
-
-namespace
-{
-  enum class CommandType : uint8_t
-  {
-    Mix = 0,
-    Gap = 1,
-    Alarm = 2
-  };
-
-  struct __attribute__((packed)) ProgramHeader
-  {
-    char prefix = STX;
-    uint8_t commandCount = 0;
-  };
-
-  struct __attribute__((packed)) MixCommand
-  {
-    CommandType commandType = CommandType::Mix;
-    uint8_t argsCount = 0;
-    int32_t power = 0;
-    int32_t duration = 0;
-  };
-
-  struct __attribute__((packed)) GapCommand
-  {
-    CommandType commandType = CommandType::Gap;
-    uint8_t argsCount = 0;
-    int32_t duration = 0;
-  };
-
-  struct __attribute__((packed)) AlarmCommand
-  {
-    CommandType commandType = CommandType::Alarm;
-    uint8_t argsCount = 0;
-  };
-}
-
-struct CExecuteProcess::ExecuteResult
-{
-  int returnCode;
-  uint32_t commandSize;
-};
-
-CExecuteProcess::CExecuteProcess(const IButtonWatcher &buttonWatcher, IIndicator &indicator, IMixerController &mixerController)
-    : m_buttonWatcher{buttonWatcher}, m_indicator{indicator}, m_mixerController{mixerController}
+CExecuteProcess::CExecuteProcess(const IButtonWatcher &pauseButtonWatcher,
+                                 const IButtonWatcher &changeStateButtonWatcher,
+                                 const IEncoderWatcher &encoder,
+                                 IIndicator &indicator,
+                                 IMixerController &mixerController)
+    : m_pauseButtonWatcher{pauseButtonWatcher},
+      m_changeStateButtonWatcher{changeStateButtonWatcher},
+      m_encoder{encoder},
+      m_indicator{indicator},
+      m_mixerController{mixerController},
+      m_state{ExecuteState::Paused}
 {
 }
 
 int CExecuteProcess::start()
 {
-  auto header = ProgramHeader();
-  EEPROM.get(0, header);
-  m_commandCount = header.commandCount;
-  m_nextCommandNumber = 0;
-  m_nextCommandAddress = sizeof(header);
-
   m_initialProcess = true;
-
-  return executeNextCommand();
+  m_state = ExecuteState::Running;
+  m_program.start();
+  if (const auto pCommand = m_program.currentCommand())
+    executeCommand(*pCommand);
+  return SUCCESS;
 }
 
 int CExecuteProcess::process()
 {
-  DEBUG_MSG("CExecuteProcess::process");
-  if (!m_pCommandProcess)
-    return SUCCESS;
+  checkStateProcess();
+  chooseOperationProcess();
+  pauseProcess();
+  operationProcess();
+  indicatorProcess();
+  
+  if (m_state == ExecuteState::Finished)
+    return PROCESS_FINISHED;
+  return SUCCESS;
+}
 
-  if (m_buttonWatcher.clicked() && !m_initialProcess)
+void CExecuteProcess::checkStateProcess()
+{
+  if (m_pauseButtonWatcher.clicked() && !m_initialProcess)
   {
-    m_paused = !m_paused;
-    if (m_paused)
+    switch (m_state)
     {
-      m_pCommandProcess->pause();
-      m_indicator.setChars("PA");
-    }
-    else
-    {
+    case ExecuteState::Paused:
+      m_state = ExecuteState::Running;
       m_pCommandProcess->resume();
-      m_indicator.setNumber(m_nextCommandNumber - 1);
+      break;
+    case ExecuteState::Running:
+      m_state = ExecuteState::Paused;
+      m_pCommandProcess->pause();
+      break;
+    default:
+      break;
     }
   }
-
+  if (m_changeStateButtonWatcher.state() == ButtonState::Pressed && m_state == ExecuteState::Paused)
+    m_state = ExecuteState::ChooseOperation;
   m_initialProcess = false;
+}
 
+void CExecuteProcess::chooseOperationProcess()
+{
+  if (m_state != ExecuteState::ChooseOperation)
+    return;
+  switch (m_encoder.state())
+  {
+  case EncoderState::TurnedCW:
+    if (m_chosenOperation < m_program.operationCount())
+      m_chosenOperation++;
+    break;
+  case EncoderState::TurnedCCW:
+    if (m_chosenOperation > 0)
+      m_chosenOperation--;
+    break;
+  default:
+    break;
+  }
+  if (m_changeStateButtonWatcher.state() != ButtonState::Pressed)
+  {
+    if (const auto pCommand = m_program.setCommandNumber(m_chosenOperation))
+      executeCommand(*pCommand);
+    m_state = ExecuteState::Paused;
+  }
+}
+
+void CExecuteProcess::indicatorProcess()
+{
+  if (m_state == ExecuteState::Paused)
+    m_indicator.setChars("PA");
+  if (m_state == ExecuteState::Running)
+    setCurrentCommandNumberOnIndicator();
+  if (m_state == ExecuteState::ChooseOperation)
+    m_indicator.setNumber(m_chosenOperation);
+}
+
+void CExecuteProcess::operationProcess()
+{
+  if (!m_pCommandProcess)
+    return;
   const auto status = m_pCommandProcess->process();
   if (status == ProcessStatus::Finished)
-    return executeNextCommand();
-  return SUCCESS;
+    executeNextCommand();
+}
+
+void CExecuteProcess::pauseProcess()
+{
+  if (m_state != ExecuteState::Paused)
+    return;
+  if (!m_pCommandProcess)
+    return;
+  m_pCommandProcess->pause();
+}
+
+void CExecuteProcess::setCurrentCommandNumberOnIndicator()
+{
+  m_indicator.setNumber(m_chosenOperation);
 }
 
 int CExecuteProcess::stop()
 {
   releaseCurrentCommandProcess();
-  m_nextCommandNumber = 0;
-  m_nextCommandAddress = sizeof(ProgramHeader);
+  m_program.reset();
   return SUCCESS;
 }
 
-int CExecuteProcess::executeNextCommand()
+void CExecuteProcess::executeNextCommand()
 {
-  if (m_nextCommandNumber == m_commandCount)
-  {
-    m_indicator.resetIndicator();
-    return PROGRAM_FINISHED;
-  }
-
-  m_indicator.setNumber(m_nextCommandNumber);
-
-  const auto result = executeCommand(m_nextCommandAddress);
-
-  m_nextCommandNumber++;
-  m_nextCommandAddress += result.commandSize;
-  return result.returnCode;
+  if (const auto pCommand = m_program.next())
+    executeCommand(*pCommand);
+  else
+    m_state = ExecuteState::Finished;
 }
 
-CExecuteProcess::ExecuteResult CExecuteProcess::executeCommand(int commandAddress)
+void CExecuteProcess::executeCommand(const Command &command)
 {
-  const auto commandType = CommandType(EEPROM.read(commandAddress));
-  switch (commandType)
+  DEBUG_MSG(command.number);
+  m_chosenOperation = command.number;
+  switch (command.type)
   {
   case CommandType::Mix:
-    return executeMixCommand(commandAddress);
+    executeMixCommand(command.data.mix);
+    break;
   case CommandType::Gap:
-    return executeGapCommand(commandAddress);
+    executeGapCommand(command.data.gap);
+    break;
   case CommandType::Alarm:
-    return executeAlarmCommand(commandAddress);
+    executeAlarmCommand(command.data.alarm);
+    break;
   default:
-    return {PROGRAM_READ_ERROR, 0};
+    break;
   }
 }
 
-CExecuteProcess::ExecuteResult CExecuteProcess::executeMixCommand(int commandAddress)
+void CExecuteProcess::executeMixCommand(const MixCommand &command)
 {
-  auto command = MixCommand();
-  EEPROM.get(commandAddress, command);
-
-  if (command.commandType != CommandType::Mix)
-    return {PROGRAM_READ_ERROR, 0};
-
-  return {startNewCommandProcess(new CMixCommandProcess(m_mixerController, command.power, command.duration)), sizeof(command)};
+  startNewCommandProcess(new CMixCommandProcess(m_mixerController, command.power, command.duration));
 }
 
-CExecuteProcess::ExecuteResult CExecuteProcess::executeGapCommand(int commandAddress)
+void CExecuteProcess::executeGapCommand(const GapCommand &command)
 {
-  auto command = GapCommand();
-  EEPROM.get(commandAddress, command);
-
-  if (command.commandType != CommandType::Gap)
-    return {PROGRAM_READ_ERROR, 0};
-
-  return {startNewCommandProcess(new CGapCommandProcess(command.duration)), sizeof(command)};
+  startNewCommandProcess(new CGapCommandProcess(command.duration));
 }
 
-CExecuteProcess::ExecuteResult CExecuteProcess::executeAlarmCommand(int commandAddress)
+void CExecuteProcess::executeAlarmCommand(const AlarmCommand &)
 {
-  auto command = AlarmCommand();
-  EEPROM.get(commandAddress, command);
-
-  if (command.commandType != CommandType::Alarm)
-    return {PROGRAM_READ_ERROR, 0};
-
-  return {startNewCommandProcess(new CAlarmCommandProcess()), sizeof(command)};
+  startNewCommandProcess(new CAlarmCommandProcess());
 }
 
-int CExecuteProcess::startNewCommandProcess(ICommandProcess *newCommandProcess)
+void CExecuteProcess::startNewCommandProcess(ICommandProcess *newCommandProcess)
 {
   releaseCurrentCommandProcess();
   m_pCommandProcess = newCommandProcess;
-  return m_pCommandProcess->start();
+  m_pCommandProcess->start();
 }
 
 void CExecuteProcess::releaseCurrentCommandProcess()

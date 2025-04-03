@@ -17,13 +17,13 @@ namespace pattern_bits
     //
 
     constexpr byte A = 1 << 2;
-    constexpr byte B = 1 << 4;
-    constexpr byte C = 1 << 5;
-    constexpr byte D = 1 << 7;
-    constexpr byte E = 1 << 6;
+    constexpr byte B = 1 << 7;
+    constexpr byte C = 1 << 6;
+    constexpr byte D = 1 << 4;
+    constexpr byte E = 1 << 5;
     constexpr byte F = 1 << 3;
-    constexpr byte G = 1 << 1;
-    constexpr byte DP = 1 << 0;
+    constexpr byte G = 1 << 0;
+    constexpr byte DP = 1 << 1;
 }
 
 namespace
@@ -94,7 +94,6 @@ int CIndicatorProcess::start()
 
 int CIndicatorProcess::process()
 {
-    DEBUG_MSG("CIndicatorProcess::process");
     const auto timerStatus = m_digitSwitchTimer.process();
     if (timerStatus == TimerStatus::Finished)
         changeState();
