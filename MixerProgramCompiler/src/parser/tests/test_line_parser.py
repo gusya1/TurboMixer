@@ -15,8 +15,9 @@ class ParseLineTest(TestCase):
             parse_line("some_text")
 
     def test_parse_command_start_with_space(self):
-        with self.assertRaises(LineError):
-            parse_line(" alarm")
+        command = parse_line(" alarm")
+        expect = Command(CommandType.Alarm, [])
+        self.assertEqual(expect, command)
 
     def test_parse_mix_without_arguments(self):
         with self.assertRaises(LineError):
@@ -58,3 +59,12 @@ class ParseLineTest(TestCase):
         command = parse_line("alarm")
         expect = Command(CommandType.Alarm, [])
         self.assertEqual(expect, command)
+
+    def test_parse_gap_command_with_comment(self):
+        command = parse_line("gap 1 // комментарий")
+        expect = Command(CommandType.Gap, [1])
+        self.assertEqual(expect, command)
+
+    def test_parse_gap_command_with_invalid_comment(self):
+        with self.assertRaises(LineError):
+            parse_line("gap 1 / комментарий")

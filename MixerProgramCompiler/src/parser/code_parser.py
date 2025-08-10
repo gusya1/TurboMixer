@@ -31,12 +31,18 @@ def parse_arguments(command_type, lexemes):
             raise LineError("Ошибка аргумента {}: {}".format(arg_num + 1, str(e)))
 
 
+def delete_comment(line: str) -> str:
+    index = line.find("//")
+    if index == -1:
+        return line
+    return line[:index]
+
 def parse_line(line: str):
     if not line:
         raise LineError("Пустая строка")
+    line = delete_comment(line)
+    line = line.strip()
     lexemes = line.split(" ")
-    if not lexemes[0]:
-        raise LineError("Лишние пробелы в начале строки")
     command_type = get_command_type(lexemes[0])
     return Command(command_type, list(parse_arguments(command_type, lexemes)))
 
