@@ -1,0 +1,1 @@
+pyinstaller -w --onefile --paths .venv\Lib\site-packages\ --paths src\ src/app/select_params.py

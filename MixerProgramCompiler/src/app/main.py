@@ -16,20 +16,17 @@ def read_program_file(program_file_path):
     file = open(program_file_path, 'r')
     return file.read()
 
-
-def main():
+def run(port, baudrate, program_file_path):
     logging.basicConfig(level=logging.INFO)
     try:
-        args = read_arguments()
-
         loader = SerialLoader()
         try:
-            loader.connect(args.port, args.baudrate)
+            loader.connect(port, baudrate)
         except OpenPortError as e:
             logging.error("Ошибка открытия порта: {}".format(str(e)))
             return
 
-        program_text = read_program_file(args.program_file_path)
+        program_text = read_program_file(program_file_path)
         program = parse_code(program_text)
         program_bin = compile_program(program)
         # Ожидание готовности
@@ -58,8 +55,14 @@ def main():
             if status is LoadStatus.Ready:
                 logging.error("Неожиданный статус устройства: {}".format(str(status)))
                 return
+
     except CompilerError as e:
         logging.error("Ошибка компиляции: {}".format(e))
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+    args = read_arguments()
+    run(args.port, args.baudrate, args.program_file_path)
 
 
 if __name__ == "__main__":
