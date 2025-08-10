@@ -1,23 +1,15 @@
-from loader.loader import SerialLoader, LoadStatus, OpenPortError
-from parser.code_parser import parse_code
-from compiler.compiler import compile_program, CompilerError
-
-import argparse
 import logging
 
-def read_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('port', type=str, help='Имя COM порта')
-    parser.add_argument('baudrate', type=int)
-    parser.add_argument('program_file_path', type=str)
-    return parser.parse_args()
+from compiler.compiler import compile_program, CompilerError
+from parser.code_parser import parse_code
+from serial_loader.loader import SerialLoader, OpenPortError, LoadStatus
+
 
 def read_program_file(program_file_path):
     file = open(program_file_path, 'r')
     return file.read()
 
-def run(port, baudrate, program_file_path):
-    logging.basicConfig(level=logging.INFO)
+def run(port: str, baudrate: int, program_file_path: str, logger: logging.Logger):
     try:
         loader = SerialLoader()
         try:
@@ -58,12 +50,3 @@ def run(port, baudrate, program_file_path):
 
     except CompilerError as e:
         logging.error("Ошибка компиляции: {}".format(e))
-
-def main():
-    logging.basicConfig(level=logging.INFO)
-    args = read_arguments()
-    run(args.port, args.baudrate, args.program_file_path)
-
-
-if __name__ == "__main__":
-    main()

@@ -1,5 +1,4 @@
 import serial
-import asyncio
 import enum
 import logging
 

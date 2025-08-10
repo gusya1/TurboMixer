@@ -3,7 +3,9 @@ from tkinter import ttk, filedialog, scrolledtext
 from serial.tools import list_ports
 import logging
 import threading
-from app.main import run
+
+from program_loader import run
+
 
 class LogHandler(logging.Handler):
     """Кастомный обработчик логов для Tkinter"""
@@ -101,7 +103,7 @@ class App:
 
     def run_main_app(self, com_port, file_path):
         try:
-            run(com_port, 9600, file_path)
+            run(com_port, 9600, file_path, logging.getLogger())
         except Exception as e:
             logging.error(f"Error in main app: {str(e)}")
         finally:
